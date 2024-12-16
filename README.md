@@ -51,12 +51,11 @@
 - Программа получает число N типа int и массив типа long[] с размерностью N для хранения больших чисел
 
 
-|                      | название переменной                                  | Тип (в Java)   | 
-|----------------------|------------------------------------------------------|--------------- |
-| Массив               | originalArr ,squares, others ,mergedArray            |     long[]     |
-| Результат(факториал) | result                                               | BigInteger     |
-|                      |    num                                               |    long        |
-|                      | n, i, sqrt, absN, cubeRoot, squaresCount,othersCount |      int       |
+|                      | название переменной                                     | Тип (в Java)   | 
+|----------------------|---------------------------------------------------------|--------------- |
+| Массив               | array, squares, others, sortedArray                     |     int[]      |
+| Факториал            | fact                                                    |     long       |
+|                      | num, i, sqrt, absN, cubeCount, squaresCount, othersCount|      int       |
 
 ### 4. Алгоритм
 #### Алгоритм выполнения программы:
@@ -120,116 +119,122 @@ graph TD
 ### 5. Программа
 
 ```java
-import java.util.*;
-import java.math.BigInteger;
-
+import java.io.PrintStream;
+import java.util.Scanner;
 public class Main {
-
-    // Функция для вычисления факториала
-    public static BigInteger factorial(int n) {
-        if (n < 0) throw new IllegalArgumentException("Факториал не определён для отрицательных чисел.");
-        BigInteger result = BigInteger.ONE;
-        for (int i = 2; i <= n; i++) {
-            result = result.multiply(BigInteger.valueOf(i));
-        }
-        return result;
-    }
-
-    // Функция для проверки, является ли число квадратом целого числа
-    public static boolean isPerfectSquare(int n) {
-        if (n < 0) return false;
-        int sqrt = (int) Math.sqrt(n);
-        return sqrt * sqrt == n;
-    }
-
-    // Функция для проверки, является ли число кубом целого числа
-    public static boolean isPerfectCube(int n) {
-        int absN = Math.abs(n);
-        int cubeRoot = (int) Math.cbrt(absN);
-        return cubeRoot * cubeRoot * cubeRoot == absN;
-    }
+    public static Scanner in = new Scanner(System.in);
+    public static PrintStream out = System.out;
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-
-        // Вводим размер массива
-        System.out.print("Введите размер массива: ");
-        int N = scanner.nextInt();
-        long[] originalArr = new long[N];
-
-        System.out.println("Введите элементы массива:");
-        for (int i = 0; i < N; i++) {
-            originalArr[i] = scanner.nextLong();
-        }
-
-        // Замена на факториалы для исходного массива
-        System.out.println("Массив после замены на факториалы:");
-        for (long num : originalArr) {
-            if (num >= 0 && num <= 100) { // Ограничение для факториала
-                BigInteger fact = factorial((int) num);
-                System.out.print(fact + " ");
+        // 1. Ввод массива
+        out.print("Введите размер массива N: ");
+        int n = in.nextInt();
+        int[] array = new int[n];
+        out.println("Введите " + n + " целых чисел, не превышающих 20 :");
+        for (int i = 0; i < n; i++) {
+            int num = in.nextInt();
+            if (num > 20) {
+                out.println("Число не должно превышать 20! Пожалуйста, введите другое.");
+                i--;
             } else {
-                System.out.print(num + " "); // Если число вне диапазона, оставляем его без изменений
+                array[i] = num;
             }
         }
-        System.out.println();
-
-        // Создаем массивы для квадратов и остальных чисел
+        // 2. Сортировка массива (квадраты -> по возрастанию, остальные -> по убыванию)
+        int[] squares = new int[n];
+        int[] others = new int[n];
         int squaresCount = 0;
         int othersCount = 0;
 
-        // Подсчитываем количество квадратов и других чисел
-        for (long num : originalArr) {
-            if (isPerfectSquare((int) num)) {
-                squaresCount++;
+        for (int i = 0; i < array.length; i++) {
+            int num = array[i];
+            int sqrt = (int) Math.sqrt(num);
+            if (sqrt * sqrt == num) {
+                squares[squaresCount++] = num;
             } else {
-                othersCount++;
+                others[othersCount++] = num;
             }
         }
 
-        // Массивы для квадратов и остальных чисел
-        long[] squares = new long[squaresCount];
-        long[] others = new long[othersCount];
-
-        // Заполняем массивы
-        int squareIndex = 0, otherIndex = 0;
-        for (long num : originalArr) {
-            if (isPerfectSquare((int) num)) {
-                squares[squareIndex++] = num;  // Заполняем массив квадратов
-            } else {
-                others[otherIndex++] = num;  // Заполняем массив остальных чисел
+        // Сортировка квадратов по возрастанию
+        for (int i = 0; i < squaresCount - 1; i++) { //i отслеживает кол-во завершенных проходов по массиву
+            for (int j = 0; j < squaresCount - 1 - i; j++) { //j отслеживает индекс текущего элемента в массиве для сравнения
+                if (squares[j] > squares[j + 1]) {
+                    // Обмен значений
+                    int z = squares[j];
+                    squares[j] = squares[j + 1];
+                    squares[j + 1] = z;
+                }
             }
         }
-
-        // Объединяем квадраты и остальные числа
-        long[] mergedArray = new long[squaresCount + othersCount];
-        System.arraycopy(squares, 0, mergedArray, 0, squaresCount);
-        System.arraycopy(others, 0, mergedArray, squaresCount, othersCount);
-
-        System.out.println("Объединённый массив:");
-        for (long num : mergedArray) {
-            System.out.print(num + " ");
+        // Сортировка остальных чисел по убыванию
+        for (int i = 0; i < othersCount - 1; i++) {
+            for (int j = 0; j < othersCount - 1 - i; j++) {
+                if (others[j] < others[j + 1]) {
+                    // Обмен значений
+                    int z = others[j];
+                    others[j] = others[j + 1];
+                    others[j + 1] = z;
+                }
+            }
         }
-        System.out.println();
+        // Объединение отсортированных массивов
+        int[] sortedArray = new int[squaresCount + othersCount];
+        int index = 0;
+        // Добавляем отсортированные квадраты
+        for (int i = 0; i < squaresCount; i++) {
+            sortedArray[index++] = squares[i];
+        }
+        // Добавляем остальные числа
+        for (int i = 0; i < othersCount; i++) {
+            sortedArray[index++] = others[i];
+        }
+        // Вывод объединенного массива
+        System.out.println("Отсортированный массив:");
+        for (int i = 0; i < sortedArray.length; i++) {
+            out.print(sortedArray[i] + " ");
+        }
+        out.println();
 
-        // Подсчитываем количество кубов
+        // 3. Подсчет чисел, являющихся кубами целых чисел
         int cubeCount = 0;
-        for (long num : mergedArray) {
-            if (isPerfectCube((int) num)) {
-                cubeCount++;
+        for (int i = 0; i < array.length; i++) {
+            int num = array[i];
+            int cbrt = (int) Math.cbrt(num);
+            if (cbrt * cbrt * cbrt == num) {
+                cubeCount += 1;
             }
         }
-        System.out.println("Количество кубов: " + cubeCount);
+        out.println("Количество чисел, являющихся кубами целых чисел: " + cubeCount);
 
-        // Замена квадратов на корни
-        System.out.println("Массив после замены квадратов на корни:");
-        for (int i = 0; i < N; i++) {
-            if (isPerfectSquare((int) originalArr[i])) {
-                originalArr[i] = (long) Math.sqrt(originalArr[i]);
+        // 4. Замена квадратов на их квадратные корни и вывод массива
+        out.println("Массив после замены квадратов на их квадратные корни:");
+        for (int i = 0; i < n; i++) {
+            int sqrt = (int) Math.sqrt(array[i]);
+            if (sqrt * sqrt == array[i]) {
+                out.print(sqrt + " ");
+            } else {
+                out.print(array[i] + " ");
             }
-            System.out.print(originalArr[i] + " ");
         }
-        System.out.println();
+        out.println();
+
+        // 5. Замена каждого числа на его факториал и вывод массива
+        out.println("Массив после замены чисел на их факториалы:");
+        for (int i = 0; i < n; i++) {
+            int num = array[i];
+            if (num < 0) {
+                out.print(num + " ");
+            } else {
+                long fact = 1;
+                for (int j = 1; j <= num; j++) {
+                    fact *= j;
+                }
+                out.print(fact + " ");
+            }
+        }
+        out.println();
+        in.close();
     }
 }
 ```
@@ -241,29 +246,30 @@ public class Main {
     - **Input**:
         ```
         5
-        9 23 16 44 -2
+        9 3 16 20 -2
         ```
 
     - **Output**:
         ```
-        Массив после замены на факториалы: 362880 25852016738884976640000 20922789888000 2658271574788448768043625811014615890319638528000000000 -2
-        Объединённый массив: 9 16 23 44 -2
-        Количество кубов: 0
-        Массив после замены квадратов на корни:3 23 4 44 -2
+        Отсортированный массив: 9 16 20 3 -2
+        Количество чисел, являющихся кубами целых чисел: 0
+        Массив после замены квадратов на их квадратные корни:3 3 4 20 -2
+        Массив после замены чисел на их факториалы:362880 6 20922789888000 2432902008176640000 -2 
+
         ```
 2. Тест №2:
 
     - **Input**:
         ```
         5
-        4 27 16 10 9
+        4 7 16 10 9
         ```
 
     - **Output**:
         ```
-        Массив после замены на факториалы: 24 10888869450418352160768000000 20922789888000 3628800 362880
-        Объединённый массив: 4 16 9 27 10
-        Количество кубов: 1
-        Массив после замены квадратов на корни: 2 27 4 10 3
+        Отсортированный массив:4 9 16 10 7
+        Количество чисел, являющихся кубами целых чисел: 0
+        Массив после замены квадратов на их квадратные корни:2 7 4 10 3
+        Массив после замены чисел на их факториалы:24 5040 20922789888000 3628800 362880 
         ```
 
