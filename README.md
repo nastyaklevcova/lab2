@@ -55,7 +55,7 @@
 |----------------------|---------------------------------------------------------|--------------- |
 | Массив               | array, squares, others, sortedArray                     |     int[]      |
 | Факториал            | fact                                                    |     long       |
-|                      | num, i, sqrt, absN, cubeCount, squaresCount, othersCount|      int       |
+|                      | num, i, sqrt, cubeCount, squaresCount, othersCount      |      int       |
 
 ### 4. Алгоритм
 #### Алгоритм выполнения программы:
